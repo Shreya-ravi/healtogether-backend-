@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEALTOGETHER - Account</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#d1dce8 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-field {
+            transition: all 0.2s ease-in-out;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .hidden-toast {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="successToast" class="fixed top-6 right-6 bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-xl hidden-toast z-50">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="text-gray-700 font-medium">Account ready!</p>
+        </div>
+    </div>
+
+    <div class="glass-card w-full max-w-5xl rounded-3xl p-8 md:p-12 my-8">
+        <div class="text-center mb-10">
+            <div class="inline-block mb-4">
+                <svg width="140" height="120" viewBox="0 0 140 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto">
+                    <path d="M70 15C60 15 50 20 45 30C40 40 42 60 55 75L40 100M70 15C80 15 90 20 95 30C100 40 98 60 85 75L100 100" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M60 25C55 25 52 30 52 35" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M58 35C53 35 50 40 50 45" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M58 45C53 45 50 50 50 55" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M60 55C55 55 52 60 52 65" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M80 25C85 25 88 30 88 35" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M82 35C87 35 90 40 90 45" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M82 45C87 45 90 50 90 55" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M80 55C85 55 88 60 88 65" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M10 50L45 80L35 110L5 95Z" fill="none" stroke="#78350f" stroke-width="2.5"/>
+                    <path d="M130 50L95 80L105 110L135 95Z" fill="none" stroke="#78350f" stroke-width="2.5"/>
+                    <circle cx="115" cy="90" r="4" fill="#78350f"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-slate-800 tracking-tight">HEAL TOGETHER</h1>
+            <p class="text-slate-500 mt-2">Account Access Before Patient Check-In</p>
+            <div id="todayDateDisplay" class="text-xs font-medium text-slate-400 mt-2 uppercase tracking-widest"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-semibold text-slate-800">Create Account</h2>
+                    <span class="text-xs font-medium text-blue-500 bg-blue-50 px-2 py-1 rounded-md">New User</span>
+                </div>
+                <p class="text-sm text-slate-500 mb-6">Add your contact details first, then continue to patient information.</p>
+
+                <form id="registerForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                        <input id="registerName" type="text" required placeholder="Enter your full name" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Age</label>
+                            <input id="registerAge" type="number" min="0" max="120" required placeholder="Enter age" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Date of Birth</label>
+                            <input id="registerDob" type="date" required class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Phone Number</label>
+                        <input id="registerPhone" type="tel" required placeholder="Enter your phone number" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                        <input id="registerEmail" type="email" required placeholder="Enter your email address" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                        <input id="registerPassword" type="password" required minlength="6" placeholder="Create a password" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <button type="submit" class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-semibold rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg">
+                        Continue to Patient Form
+                    </button>
+                </form>
+            </div>
+
+            <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-semibold text-slate-800">Already Have Account</h2>
+                    <span class="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded-md border border-slate-200">Returning User</span>
+                </div>
+                <p class="text-sm text-slate-500 mb-6">Login with the email and password you used during account creation.</p>
+                <div class="mb-6 rounded-2xl bg-white border border-slate-200 px-4 py-3">
+                    <p class="text-xs text-slate-500">Your account still stays remembered on this device after a successful login.</p>
+                </div>
+
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                        <input id="loginEmail" type="email" required placeholder="Enter your email address" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                        <input id="loginPassword" type="password" required placeholder="Enter your password" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                    </div>
+                    <button type="submit" class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-semibold rounded-2xl text-white bg-slate-800 hover:bg-slate-900 transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg">
+                        Login
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-6 border-t border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-semibold text-slate-800">Doctors Login</h3>
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Protected</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-4">Use a doctor username starting with <span class="font-semibold text-slate-700">dr </span> and the doctor password.</p>
+                    <form id="doctorLoginForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Doctor Username</label>
+                            <input id="doctorUsername" type="text" required placeholder="Example: dr monica" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                            <input id="doctorPassword" type="password" required placeholder="Enter doctor password" class="input-field w-full px-4 py-3 rounded-xl bg-white text-slate-800 placeholder:text-slate-400">
+                        </div>
+                        <button type="submit" class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-semibold rounded-2xl text-white bg-emerald-600 hover:bg-emerald-700 transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg">
+                            Doctors Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex items-center justify-center space-x-2 text-slate-400 text-xs">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span>Verified Secure Healthcare Check</span>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000";
+
+        function initializePage() {
+            const now = new Date();
+            const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+            document.getElementById("todayDateDisplay").innerText = `Check-in Date: ${now.toLocaleDateString("en-US", options)}`;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("successToast");
+            toast.querySelector("p").innerText = message;
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 2500);
+        }
+
+        function saveAccount(account) {
+            localStorage.setItem("healthAppAccount", JSON.stringify(account));
+        }
+
+        function saveAuthToken(token) {
+            localStorage.setItem("healthAppAuthToken", token);
+        }
+
+        function saveDoctorSession(session) {
+            localStorage.setItem("healthAppDoctorSession", JSON.stringify(session));
+        }
+
+        function clearAuthState() {
+            localStorage.removeItem("healthAppAuthToken");
+            localStorage.removeItem("healthAppDoctorSession");
+        }
+
+        function getSavedAccounts() {
+            try {
+                return JSON.parse(localStorage.getItem("healthAppAccounts")) || [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function saveAccounts(accounts) {
+            localStorage.setItem("healthAppAccounts", JSON.stringify(accounts));
+        }
+
+        function createAccountId() {
+            return `acct-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        }
+
+        function normalizeText(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function getAccountMatchIndex(accounts, account) {
+            return accounts.findIndex((item) => {
+                if (account.account_id && item.account_id) {
+                    return item.account_id === account.account_id;
+                }
+
+                return normalizeText(item.name) === normalizeText(account.name)
+                    && normalizeText(item.phone) === normalizeText(account.phone)
+                    && normalizeText(item.dob) === normalizeText(account.dob);
+            });
+        }
+
+        function rememberAccount(account) {
+            const accounts = getSavedAccounts();
+            const existingIndex = getAccountMatchIndex(accounts, account);
+
+            if (existingIndex >= 0) {
+                accounts[existingIndex] = { ...accounts[existingIndex], ...account };
+            } else {
+                accounts.unshift(account);
+            }
+
+            saveAccounts(accounts.slice(0, 8));
+            renderSavedAccounts();
+        }
+
+        function renderSavedAccounts() {}
+
+        async function handleRegister(event) {
+            event.preventDefault();
+
+            const account = {
+                account_id: createAccountId(),
+                name: document.getElementById("registerName").value.trim(),
+                age: document.getElementById("registerAge").value.trim(),
+                dob: document.getElementById("registerDob").value,
+                phone: document.getElementById("registerPhone").value.trim(),
+                email: document.getElementById("registerEmail").value.trim(),
+                password: document.getElementById("registerPassword").value
+            };
+
+            if (!account.name || !account.age || !account.dob || !account.phone || !account.email || !account.password) {
+                window.alert("Please fill in all contact details and create a password.");
+                return;
+            }
+
+            if (!/^\d{5}$/.test(account.phone)) {
+                window.alert("Phone number must be exactly 5 digits.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        display_name: account.name,
+                        age: account.age,
+                        dob: account.dob,
+                        phone: account.phone,
+                        email: account.email,
+                        password: account.password,
+                        role: "patient"
+                    })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    window.alert(result.message || "Unable to create your account.");
+                    return;
+                }
+
+                const savedAccount = {
+                    account_id: result.data?.user?.account_id || account.account_id,
+                    name: result.data?.user?.display_name || account.name,
+                    age: account.age,
+                    dob: account.dob,
+                    phone: account.phone,
+                    email: result.data?.user?.email || account.email,
+                    role: result.data?.user?.role || "patient"
+                };
+
+                saveAuthToken(result.data?.token || "");
+                saveAccount(savedAccount);
+                rememberAccount(savedAccount);
+                showToast("Account created successfully!");
+                setTimeout(() => {
+                    window.location.href = "Homemedicine.html";
+                }, 500);
+            } catch (error) {
+                window.alert(error.message || "Unable to create your account right now.");
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+            if (!email || !password) {
+                window.alert("Please enter your email and password to login.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    window.alert(result.message || "Unable to login.");
+                    return;
+                }
+
+                const remembered = getSavedAccounts().find((account) => normalizeText(account.email) === normalizeText(email));
+                const savedAccount = {
+                    account_id: result.data?.user?.account_id,
+                    name: result.data?.user?.display_name,
+                    age: remembered?.age || "",
+                    dob: remembered?.dob || "",
+                    phone: remembered?.phone || "",
+                    email: result.data?.user?.email || email,
+                    role: result.data?.user?.role || "patient"
+                };
+
+                saveAuthToken(result.data?.token || "");
+                saveAccount(savedAccount);
+                rememberAccount(savedAccount);
+                showToast("Logged in successfully!");
+                setTimeout(() => {
+                    window.location.href = "Homemedicine.html";
+                }, 500);
+            } catch (error) {
+                window.alert(error.message || "Unable to login right now.");
+            }
+        }
+
+        async function handleDoctorLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("doctorUsername").value.trim().toLowerCase();
+            const password = document.getElementById("doctorPassword").value.trim();
+
+            if (!username || !password) {
+                window.alert("Please enter doctor username and password.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/doctor-portal-login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    window.alert(result.message || "Unable to login as doctor.");
+                    return;
+                }
+
+                const user = result.data?.user || {};
+                clearAuthState();
+                saveAuthToken(result.data?.token || "");
+                saveDoctorSession({
+                    username,
+                    account_id: user.account_id || "",
+                    displayName: user.display_name || username,
+                    role: user.role,
+                    token: result.data?.token || ""
+                });
+                showToast("Doctor login successful!");
+                setTimeout(() => {
+                    window.location.href = "doctor.html";
+                }, 500);
+            } catch (error) {
+                window.alert(error.message || "Unable to login as doctor right now.");
+            }
+        }
+
+        window.onload = () => {
+            initializePage();
+            document.getElementById("registerForm").addEventListener("submit", handleRegister);
+            document.getElementById("loginForm").addEventListener("submit", handleLogin);
+            document.getElementById("doctorLoginForm").addEventListener("submit", handleDoctorLogin);
+        };
+    </script>
+</body>
+</html>

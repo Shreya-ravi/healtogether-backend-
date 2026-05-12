@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healtogether - Remedies & Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background:#f8fafc; background-image:radial-gradient(#e2e8f0 0.8px, transparent 0.8px); background-size:24px 24px; color:#1e293b; }
+        .main-card { background:#fff; box-shadow:0 10px 40px -10px rgba(0,0,0,.05); border:1px solid #e5eef8; }
+        .remedy-item { transition:.2s; border:2px solid transparent; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+        .remedy-item:hover { background:#f8fbff; transform:translateY(-2px); box-shadow:0 12px 24px rgba(15,23,42,.08); }
+        .remedy-item.active { border-color:#2563eb; background:linear-gradient(135deg,#eff6ff 0%,#f8fbff 100%); box-shadow:0 16px 32px rgba(37,99,235,.16); }
+        .custom-scrollbar::-webkit-scrollbar { width:5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:10px; }
+        .section-block { background:#fff; border:1px solid #e2e8f0; border-radius:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+        .rating-bar-track { height:8px; border-radius:999px; background:#e2e8f0; overflow:hidden; }
+        .rating-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#f59e0b 0%,#fbbf24 100%); }
+        .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 md:px-8">
+    <div id="accountBadge" class="fixed top-6 right-6 z-40 hidden">
+        <button id="accountToggle" type="button" class="main-card rounded-2xl px-4 py-3 flex items-center gap-3 text-left">
+            <div id="accountInitial" class="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold">A</div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account</p>
+                <p id="accountName" class="text-sm font-semibold text-slate-700">Guest</p>
+            </div>
+        </button>
+        <div id="accountPanel" class="main-card rounded-3xl p-5 mt-3 w-[320px] hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Profile</p>
+                    <p id="accountPanelName" class="text-sm font-semibold text-slate-700">Guest</p>
+                </div>
+                <button id="logoutBtn" type="button" class="text-[10px] font-bold text-slate-500 hover:text-red-500 uppercase tracking-widest">Logout</button>
+            </div>
+            <button id="viewHistoryBtn" type="button" class="w-full mb-4 px-4 py-3 bg-blue-50 text-blue-700 rounded-2xl text-xs font-bold uppercase tracking-wide">View Full History</button>
+            <button id="doctorPanelBtn" type="button" class="w-full mb-4 px-4 py-3 bg-emerald-50 text-emerald-700 rounded-2xl text-xs font-bold uppercase tracking-wide">Doctor Panel</button>
+            <div class="bg-amber-50 rounded-2xl px-4 py-3 mb-4">
+                <p class="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1">Notifications</p>
+                <div id="accountNotificationList" class="space-y-2">
+                    <p class="text-xs text-slate-500">No notifications yet.</p>
+                </div>
+            </div>
+            <div class="bg-slate-50 rounded-2xl px-4 py-3 mb-4">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Shared Reviews</p>
+                <p id="accountReviewCount" class="text-2xl font-black text-slate-800">0</p>
+            </div>
+            <div id="accountReviewList" class="space-y-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                <p class="text-xs text-slate-500">No reviews shared by this account yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        <div class="flex flex-col items-center mb-6">
+            <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">HEAL TOGETHER</h1>
+            <p class="text-slate-500 font-medium">Community-Driven Healthcare Solutions</p>
+        </div>
+
+        <div class="main-card rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row min-h-[620px]">
+            <div class="w-full md:w-[35%] p-8 md:p-8 border-r border-slate-100 bg-slate-50/70">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Select a Remedy</h2>
+                        <p class="text-sm text-slate-500 mt-1">Personalized suggestions you can scan fast.</p>
+                    </div>
+                    <span class="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full uppercase">Smart Library</span>
+                </div>
+                <div id="personalizedSuggestionBanner" class="hidden mb-4 rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3">
+                    <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1">Personalized Suggestion</p>
+                    <p id="personalizedSuggestionText" class="text-xs text-slate-600"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                    <input id="remedySearchInput" type="text" placeholder="Search remedies" class="px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none md:col-span-3">
+                    <select id="tagFilterSelect" class="px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                        <option value="all">All Tags</option>
+                        <option value="Doctor Approved">Doctor Approved</option>
+                        <option value="Verified">Verified</option>
+                        <option value="Popular">Popular</option>
+                        <option value="Fast Relief">Fast Relief</option>
+                        <option value="Ayurveda">Ayurveda</option>
+                        <option value="Yoga">Yoga</option>
+                        <option value="Home Remedy">Home Remedy</option>
+                        <option value="Diet">Diet</option>
+                        <option value="Medicine">Medicine</option>
+                    </select>
+                    <select id="sortSelect" class="px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                        <option value="recommended">Recommended Order</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="reviews">Most Reviewed</option>
+                    </select>
+                </div>
+                <div id="remedyList" class="space-y-4 max-h-[540px] overflow-y-auto pr-2 custom-scrollbar"></div>
+            </div>
+
+            <div class="w-full md:w-[65%] bg-white p-8 md:p-10 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-800 mb-1">What People Say</h2>
+                <p class="text-sm text-slate-400 mb-6">Real feedback, trust signals, and clear remedy details.</p>
+                <div id="emptyReviewState" class="flex flex-col items-center justify-center h-full text-center py-10">
+                    <p class="text-slate-500 font-medium">Select a remedy to see community reviews</p>
+                </div>
+                <div id="activeReviewState" class="hidden space-y-6">
+                    <div class="section-block p-5">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                            <div class="flex items-end gap-3">
+                                <span id="avgRating" class="text-5xl font-black text-slate-800 tracking-tighter">-</span>
+                                <div class="mb-1">
+                                    <div id="avgStars" class="text-amber-400 text-lg">&#9734;&#9734;&#9734;&#9734;&#9734;</div>
+                                    <p id="reviewCount" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No reviews yet</p>
+                                </div>
+                            </div>
+                            <div id="ratingBars" class="w-full md:w-[44%]"></div>
+                        </div>
+                    </div>
+                    <div id="dynamicReviewList" class="space-y-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-card rounded-[2.5rem] p-8 md:p-12">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800">Global Community Feedback</h2>
+                    <p class="text-slate-500">Helping others find what works best.</p>
+                </div>
+                <button onclick="toggleReviewForm()" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-100">Write Your Review</button>
+            </div>
+
+            <div id="reviewFormContainer" class="hidden mb-12">
+                <div class="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <select id="formRemedySelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                            <option value="" disabled selected>Select Remedy</option>
+                        </select>
+                        <div class="flex items-center gap-4 px-4 bg-white border border-slate-200 rounded-xl">
+                            <span class="text-sm font-bold text-slate-500">Rating:</span>
+                            <div id="ratingPicker" class="flex gap-1 text-xl"></div>
+                        </div>
+                    </div>
+                    <input id="customRemedyInput" type="text" placeholder="Or type any other remedy or medicine" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <select id="reviewCategorySelect" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                            <option value="">Select Remedy Type</option>
+                            <option value="Ayurveda">Ayurveda</option>
+                            <option value="Herbal">Herbal</option>
+                            <option value="Home Remedy">Home Remedy</option>
+                            <option value="Medicine">Medicine</option>
+                            <option value="Yoga Support">Yoga Support</option>
+                            <option value="Diet Support">Diet Support</option>
+                        </select>
+                        <input id="relatedConditionsInput" type="text" placeholder="Related symptoms or diseases" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                    </div>
+                    <textarea id="formComment" placeholder="Describe your experience..." rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none mb-4 resize-none"></textarea>
+                    <label class="flex items-start gap-3 text-sm text-slate-600 mb-4">
+                        <input id="procedureConfirm" type="checkbox" class="mt-1 rounded border-slate-300 text-blue-600">
+                        <span>This is my opinion from using or learning about this remedy from my account.</span>
+                    </label>
+                    <p class="text-xs text-slate-400 mb-4">Any logged-in account holder can share a remedy opinion here.</p>
+                    <div class="flex justify-end gap-3">
+                        <button onclick="toggleReviewForm()" class="px-6 py-2 font-bold text-slate-500" type="button">Cancel</button>
+                        <button onclick="submitNewReview()" class="px-8 py-2 bg-slate-900 text-white font-bold rounded-xl" type="button">Post Feedback</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="globalReviewGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm hidden z-50">
+        Review submitted successfully!
+    </div>
+
+    <div id="concernModal" class="fixed inset-0 bg-slate-900/35 hidden items-center justify-center z-50 px-4">
+        <div class="w-full max-w-lg bg-white rounded-[2rem] shadow-2xl border border-slate-200 p-6">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div>
+                    <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1">Share Concern</p>
+                    <h3 class="text-lg font-bold text-slate-800">Tell us what feels incorrect or risky</h3>
+                </div>
+                <button id="concernModalClose" type="button" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
+            </div>
+            <p id="concernModalMeta" class="text-xs text-slate-500 mb-4">Your note will be shared with the review owner and doctor portal.</p>
+            <textarea id="concernModalInput" rows="4" placeholder="Write your concern here..." class="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 outline-none resize-none mb-4"></textarea>
+            <div class="flex justify-end gap-3">
+                <button id="concernModalCancel" type="button" class="px-5 py-2 text-sm font-bold text-slate-500">Cancel</button>
+                <button id="concernModalSubmit" type="button" class="px-6 py-2.5 bg-slate-900 text-white text-sm font-bold rounded-2xl">Share Concern</button>
+            </div>
+        </div>
+    </div>
+
+      <script>
+          const API_BASE = "http://localhost:5000";
+          let remedies = [], globalReviews = [], selectedId = null, selectedRemedyName = "", selectedReviewRating = 5, accountPanelOpen = false;
+          let activeRemedyQuestions = [];
+          let activeConcernReview = null;
+
+        const readJson = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } };
+        const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+        const escapeHtml = (value) => String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        const getStars = (rating) => {
+            const safeRating = Math.round(Math.max(0, Math.min(5, Number(rating) || 0)));
+            return `${"&#9733;".repeat(safeRating)}${"&#9734;".repeat(5 - safeRating)}`;
+        };
+        const getSavedAccount = () => readJson("healthAppAccount", null);
+        const getSavedPatient = () => readJson("healthAppPatient", null);
+        const getAuthToken = () => localStorage.getItem("healthAppAuthToken") || "";
+        const getAuthHeaders = () => ({
+            "Content-Type": "application/json",
+            ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {})
+        });
+        const getLocalReviews = () => readJson("healthAppLocalReviews", []);
+        const saveLocalReviews = (value) => writeJson("healthAppLocalReviews", value);
+        const getReviewKey = (review) => [review.account_id || "", review.remedy, review.user_name, review.comment, review.created_at || ""].map((item) => String(item || "").trim().toLowerCase()).join("|");
+        const getUsefulCount = (review) => Number(review.useful_count || 0);
+        const getReviewConcerns = (review) => Array.isArray(review.concerns) ? review.concerns : [];
+        const isApprovedReview = (review) => ["approved"].includes(String(review.doctor_review_status || review.moderation_status || "").toLowerCase());
+        const isConcernEnabledForRemedy = (remedy) => Boolean(remedy?.doctorVerified || remedy?.approvedByDoctor);
+        const normalizeValue = (value) => String(value || "").trim().toLowerCase();
+        const formatDoctorName = (name) => {
+            const raw = String(name || "").trim();
+            if (!raw) return "";
+            const withoutPrefix = raw.replace(/^dr\.?\s*/i, "").trim();
+            return `DR ${withoutPrefix.split(/\s+/).filter(Boolean).map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join(" ")}`;
+        };
+        const getDoctorSignatureBlock = (doctorName, dateText) => {
+            if (!doctorName) return "";
+            const displayName = formatDoctorName(doctorName);
+            return `<div class="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                <p class="text-sm font-bold text-slate-800">${escapeHtml(displayName)}</p>
+                <p class="text-[11px] text-slate-500">HEAL TOGETHER CLINIC</p>
+                <p class="text-[11px] text-slate-500">Community Review & Remedy Desk</p>
+                <p class="text-[11px] text-slate-400">Reg no.: ${escapeHtml(displayName.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "htclinic")}</p>
+                ${dateText ? `<p class="text-[10px] text-slate-400 mt-1">${escapeHtml(dateText)}</p>` : ""}
+            </div>`;
+        };
+
+        function getRemedyIcon(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${(remedy.tags || []).join(" ")}`.toLowerCase();
+            if (label.includes("tea") || label.includes("herbal") || label.includes("ayurveda")) return "🌿";
+            if (label.includes("tablet") || label.includes("medicine") || label.includes("syrup")) return "💊";
+            if (label.includes("steam") || label.includes("gargle")) return "🫖";
+            if (label.includes("yoga") || label.includes("breathing")) return "🧘";
+            if (label.includes("diet") || label.includes("water") || label.includes("broth")) return "🥣";
+            return "🩺";
+        }
+
+        function getRemedyHighlights(remedy) {
+            const tags = [];
+            if (Number(remedy.reviewCount || 0) >= 3) tags.push("Popular");
+            if (Number(remedy.rating || 0) >= 4) tags.push("Top Rated");
+            if ((remedy.tags || []).includes("Home Remedy") || (remedy.tags || []).includes("Medicine")) tags.push("Fast Relief");
+            return Array.from(new Set(tags)).slice(0, 2);
+        }
+
+        function formatReviewCount(count) {
+            return `${count} review${count === 1 ? "" : "s"}`;
+        }
+
+        function getTimeAgo(value) {
+            if (!value) return "Recently";
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return "Recently";
+            const diffMs = Date.now() - date.getTime();
+            const minutes = Math.max(1, Math.floor(diffMs / 60000));
+            if (minutes < 60) return `${minutes} min ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
+            const months = Math.floor(days / 30);
+            return `${months} month${months === 1 ? "" : "s"} ago`;
+        }
+
+        function truncateText(text, limit = 140) {
+            const value = String(text || "").trim();
+            if (value.length <= limit) {
+                return { preview: value, truncated: false };
+            }
+            return { preview: `${value.slice(0, limit).trim()}...`, truncated: true };
+        }
+
+        function renderPersonalizedSuggestion() {
+            const banner = document.getElementById("personalizedSuggestionBanner");
+            const textNode = document.getElementById("personalizedSuggestionText");
+            const patientSymptoms = Array.isArray(getSavedPatient()?.diseases) ? getSavedPatient().diseases : [];
+
+            if (!banner || !textNode || !patientSymptoms.length) {
+                banner?.classList.add("hidden");
+                return;
+            }
+
+            textNode.innerText = `Suggestions for ${patientSymptoms.slice(0, 2).join(", ")} are prioritized first so you can choose faster.`;
+            banner.classList.remove("hidden");
+        }
+
+        function getRatingDistribution(reviews) {
+            const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+            reviews.forEach((review) => {
+                const rating = Math.round(Number(review.rating) || 0);
+                if (distribution[rating] !== undefined) {
+                    distribution[rating] += 1;
+                }
+            });
+            return distribution;
+        }
+
+        function filteredRemedies() {
+            const searchTerm = String(document.getElementById("remedySearchInput")?.value || "").trim().toLowerCase();
+            const tagFilter = document.getElementById("tagFilterSelect")?.value || "all";
+            const sortBy = document.getElementById("sortSelect")?.value || "recommended";
+
+            let items = remedies.filter((remedy) => {
+                const haystack = `${remedy.title} ${remedy.desc} ${(remedy.tags || []).join(" ")}`.toLowerCase();
+                const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+                const matchesTag = tagFilter === "all" || (remedy.tags || []).includes(tagFilter);
+                return matchesSearch && matchesTag;
+            });
+
+            if (sortBy === "rating") {
+                items = [...items].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+            } else if (sortBy === "reviews") {
+                items = [...items].sort((a, b) => Number(b.reviewCount || 0) - Number(a.reviewCount || 0));
+            }
+
+            return items;
+        }
+
+        function getRelevantGlobalReviews() {
+            const patientSymptoms = Array.isArray(getSavedPatient()?.diseases) ? getSavedPatient().diseases.map(normalizeValue).filter(Boolean) : [];
+            const suggestedRemedies = remedies.map((item) => normalizeValue(item.title)).filter(Boolean);
+
+            if (!patientSymptoms.length) {
+                return globalReviews;
+            }
+
+            return globalReviews.filter((review) => {
+                const remedyName = normalizeValue(review.remedy);
+                const relatedConditions = normalizeValue(review.related_conditions);
+                const comment = normalizeValue(review.comment);
+
+                if (suggestedRemedies.includes(remedyName)) {
+                    return true;
+                }
+
+                return patientSymptoms.some((symptom) =>
+                    relatedConditions.includes(symptom)
+                    || remedyName.includes(symptom)
+                    || comment.includes(symptom)
+                );
+            });
+        }
+
+        function goToProfileHistory() {
+            window.location.href = "profile.html";
+        }
+
+        function goToDoctorPanel() {
+            window.location.href = "doctor.html";
+        }
+
+        function getAyurvedaTips(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${remedy.fullDesc || ""}`.toLowerCase();
+            if (label.includes("cold") || label.includes("cough") || label.includes("steam")) {
+                return ["Tulsi tea", "Ginger infusion", "Warm turmeric milk"];
+            }
+            if (label.includes("headache") || label.includes("oil")) {
+                return ["Brahmi support", "Peppermint aroma", "Cooling herbal compress"];
+            }
+            if (label.includes("stomach") || label.includes("diet")) {
+                return ["Ajwain water", "Jeera water", "Light khichdi support"];
+            }
+            if (label.includes("fever")) {
+                return ["Coriander water", "Rest and hydration", "Light herbal decoction"];
+            }
+            return ["Tulsi support", "Warm herbal water", "Simple Ayurvedic home care"];
+        }
+
+        function getYogaTips(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${remedy.fullDesc || ""}`.toLowerCase();
+            if (label.includes("cold") || label.includes("cough")) {
+                return ["Anulom Vilom", "Bhramari breathing", "Gentle chest-opening stretches"];
+            }
+            if (label.includes("headache")) {
+                return ["Balasana", "Neck stretches", "Slow box breathing"];
+            }
+            if (label.includes("stomach")) {
+                return ["Vajrasana after meals", "Apanasana", "Gentle seated twist"];
+            }
+            if (label.includes("fever")) {
+                return ["Complete rest", "Deep relaxed breathing", "Avoid strenuous yoga"];
+            }
+            return ["Light stretching", "Calm breathing practice", "Short guided relaxation"];
+        }
+
+        function getWebsiteSharedNotes(reviews) {
+            return reviews
+                .filter((review) => review.comment)
+                .slice(0, 3)
+                .map((review) => ({
+                    title: review.user_name || "Community Member",
+                    snippet: review.comment,
+                    source: review.remedy_category || "Shared On This Website"
+                }));
+        }
+
+        function shouldShowAyurvedaSupport(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${remedy.fullDesc || ""} ${(remedy.tags || []).join(" ")}`.toLowerCase();
+            return label.includes("ayurveda") || label.includes("herbal") || label.includes("tulsi") || label.includes("turmeric") || label.includes("ginger");
+        }
+
+        function shouldShowYogaSupport(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${remedy.fullDesc || ""} ${(remedy.tags || []).join(" ")}`.toLowerCase();
+            return label.includes("yoga") || label.includes("breathing") || label.includes("stretch") || label.includes("rest");
+        }
+
+        function shouldShowHomeSupport(remedy) {
+            const label = `${remedy.title || ""} ${remedy.desc || ""} ${remedy.fullDesc || ""} ${(remedy.tags || []).join(" ")}`.toLowerCase();
+            return label.includes("home") || label.includes("steam") || label.includes("gargle") || label.includes("water") || label.includes("diet");
+        }
+
+        async function getSymptomMedicineNotes(remedy) {
+            try {
+                const symptoms = Array.isArray(getSavedPatient()?.diseases) ? getSavedPatient().diseases : [];
+                const query = new URLSearchParams({
+                    remedy: remedy.title || "",
+                    symptoms: symptoms.join(",")
+                });
+                const response = await fetch(`${API_BASE}/external-remedy-info?${query.toString()}`);
+                if (!response.ok) {
+                    return [];
+                }
+                return await response.json();
+            } catch {
+                return [];
+            }
+        }
+
+        function getMedicineSuggestions(remedy, notes) {
+            const suggestions = [];
+            const classifyTreatmentType = (title, subtitle, source) => {
+                const label = `${title || ""} ${subtitle || ""} ${source || ""}`.toLowerCase();
+
+                if (
+                    label.includes("tulsi") ||
+                    label.includes("turmeric") ||
+                    label.includes("ginger") ||
+                    label.includes("herbal") ||
+                    label.includes("kadha") ||
+                    label.includes("ayurveda")
+                ) {
+                    return "Ayurveda";
+                }
+
+                if (
+                    label.includes("homeopathy") ||
+                    label.includes("belladonna") ||
+                    label.includes("arsenicum") ||
+                    label.includes("nux vomica") ||
+                    label.includes("rhus tox")
+                ) {
+                    return "Homeopathy";
+                }
+
+                if (
+                    label.includes("steam") ||
+                    label.includes("gargle") ||
+                    label.includes("warm water") ||
+                    label.includes("salt water") ||
+                    label.includes("rest") ||
+                    label.includes("hydration") ||
+                    label.includes("broth") ||
+                    label.includes("diet") ||
+                    label.includes("home remedy")
+                ) {
+                    return "Home Remedy";
+                }
+
+                return "Allopathy";
+            };
+
+            const pushSuggestion = (title, subtitle, source) => {
+                const safeTitle = String(title || "").trim();
+                if (!safeTitle) return;
+                if (suggestions.some((item) => item.title.toLowerCase() === safeTitle.toLowerCase())) return;
+                suggestions.push({
+                    title: safeTitle,
+                    subtitle: String(subtitle || "").trim() || "Supportive option for the selected symptoms.",
+                    source: classifyTreatmentType(title, subtitle, source)
+                });
+            };
+
+            if (remedy?.title) {
+                pushSuggestion(remedy.title, remedy.desc || remedy.fullDesc, remedy.doctorVerified ? "Library Remedy" : "Community Remedy");
+            }
+
+            (Array.isArray(notes) ? notes : []).forEach((note) => {
+                pushSuggestion(note.title, note.snippet, note.source);
+            });
+
+            return suggestions.slice(0, 4);
+        }
+
+        function updateAccountBadge() {
+            const account = getSavedAccount();
+            if (!account?.name || !getAuthToken()) { window.location.href = "index.html"; return; }
+            document.getElementById("accountName").innerText = account.name;
+            document.getElementById("accountInitial").innerText = account.name.charAt(0).toUpperCase();
+            document.getElementById("accountPanelName").innerText = account.name;
+            document.getElementById("accountBadge").classList.remove("hidden");
+        }
+
+        function logout() {
+            localStorage.removeItem("healthAppAccount");
+            localStorage.removeItem("healthAppPatient");
+            localStorage.removeItem("healthAppAuthToken");
+            localStorage.removeItem("healthAppDoctorSession");
+            window.location.href = "index.html";
+        }
+
+        function renderRatingPicker() {
+            const picker = document.getElementById("ratingPicker");
+            picker.innerHTML = "";
+            for (let i = 1; i <= 5; i += 1) {
+                const star = document.createElement("button");
+                star.type = "button";
+                star.className = i <= selectedReviewRating ? "text-amber-400" : "text-slate-300";
+                star.innerHTML = "&#9733;";
+                star.onclick = () => { selectedReviewRating = i; renderRatingPicker(); };
+                picker.appendChild(star);
+            }
+        }
+
+        function getDoctorApprovedBadge() {
+            return '<span class="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 px-2 py-1 text-[9px] font-bold uppercase tracking-wide">Doctor Approved</span>';
+        }
+
+        function getRemedyProvenance(remedy) {
+            const parts = [];
+            if (remedy.sharedByLocalUsers) {
+                parts.push("Shared by local users");
+            }
+            if (remedy.approvedByDoctor) {
+                parts.push(`Approved by ${remedy.approvedByDoctor}`);
+            }
+            return parts.join(" � ");
+        }
+
+        async function loadRemedyQuestions(remedyName) {
+            try {
+                const response = await fetch(`${API_BASE}/get-remedy-questions?remedy=${encodeURIComponent(remedyName)}`);
+                const data = await response.json();
+                activeRemedyQuestions = Array.isArray(data) ? data : [];
+            } catch {
+                activeRemedyQuestions = [];
+            }
+        }
+
+        async function submitRemedyQuestion() {
+            const account = getSavedAccount();
+            const questionInput = document.getElementById("remedyQuestionInput");
+            const text = String(questionInput?.value || "").trim();
+            const remedy = remedies.find((item) => item.id === selectedId);
+            if (!account?.name) {
+                window.alert("Please login with an account before sharing a concern.");
+                return;
+            }
+            if (!selectedRemedyName || !text) {
+                window.alert("Please choose a remedy and write your concern.");
+                return;
+            }
+            if (!isConcernEnabledForRemedy(remedy)) {
+                window.alert("You can share concerns after a doctor approves this remedy.");
+                return;
+            }
+
+            let result = {};
+            try {
+                const response = await fetch(`${API_BASE}/add-remedy-question`, {
+                    method: "POST",
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        remedy_name: selectedRemedyName,
+                        author_account_id: account.account_id || null,
+                        author_name: account.name,
+                        question_text: text
+                    })
+                });
+
+                result = await response.json();
+                if (!response.ok) {
+                    window.alert(result.message || "Unable to share your concern.");
+                    return;
+                }
+            } catch (error) {
+                window.alert(error.message || "Unable to share your concern right now.");
+                return;
+            }
+
+            questionInput.value = "";
+            const toast = document.getElementById("toast");
+            toast.innerText = result.message || "Concern shared for doctor review.";
+            toast.classList.remove("hidden");
+            setTimeout(() => toast.classList.add("hidden"), 3000);
+            await loadRemedyQuestions(selectedRemedyName);
+            if (selectedId) await selectRemedy(selectedId);
+        }
+
+        async function askAiAboutRemedy() {
+            const account = getSavedAccount();
+            const input = document.getElementById("assistantQuestionInput");
+            const output = document.getElementById("assistantAnswerBox");
+            const text = String(input?.value || "").trim();
+
+            if (!account?.name || !getAuthToken()) {
+                window.alert("Please login again to use the AI assistant.");
+                window.location.href = "index.html";
+                return;
+            }
+            if (!selectedRemedyName) {
+                window.alert("Please select a remedy first.");
+                return;
+            }
+            if (!text) {
+                window.alert("Please write a short question for the assistant.");
+                return;
+            }
+
+            output.innerHTML = '<p class="text-xs text-slate-500">Thinking...</p>';
+
+            try {
+                const patientSymptoms = Array.isArray(getSavedPatient()?.diseases) ? getSavedPatient().diseases.join(", ") : "";
+                const response = await fetch(`${API_BASE}/chat-message`, {
+                    method: "POST",
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        conversation_key: `remedy-${selectedRemedyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+                        message: `Remedy: ${selectedRemedyName}. Patient symptoms: ${patientSymptoms || "Not provided"}. User question: ${text}`
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || "Unable to get AI help right now.");
+                }
+
+                const reply = result.data?.bot_response || "No answer received.";
+                output.innerHTML = `<p class="text-[10px] font-bold text-blue-600 uppercase tracking-wide mb-1">AI Assistant</p><p class="text-xs text-slate-700 leading-relaxed">${escapeHtml(reply)}</p>`;
+            } catch (error) {
+                output.innerHTML = `<p class="text-xs text-red-600">${escapeHtml(error.message || "Unable to get AI help right now.")}</p>`;
+            }
+        }
+
+        async function submitRemedyQuestionReply(questionId, remedyName, textarea) {
+            const account = getSavedAccount();
+            const text = String(textarea?.value || "").trim();
+            if (!account?.name) {
+                window.alert("Please login with an account before replying.");
+                return;
+            }
+            if (!text) {
+                window.alert("Please write a reply before posting.");
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/add-remedy-question-reply`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    author_account_id: account.account_id || null,
+                    author_name: account.name,
+                    author_role: "patient",
+                    message_text: text
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                window.alert(result.message || "Unable to post this reply.");
+                return;
+            }
+
+            textarea.value = "";
+            await loadRemedyQuestions(remedyName);
+            if (selectedId) await selectRemedy(selectedId);
+        }
+
+        function toggleAccountPanel() {
+            accountPanelOpen = !accountPanelOpen;
+            document.getElementById("accountPanel").classList.toggle("hidden", !accountPanelOpen);
+            if (accountPanelOpen) renderAccountPanel();
+        }
+
+        function renderAccountPanel() {
+            const account = getSavedAccount();
+            const reviews = globalReviews.filter((review) => {
+                if (account?.account_id && review.account_id) {
+                    return String(review.account_id) === String(account.account_id);
+                }
+                return String(review.user_name || "").trim().toLowerCase() === String(account?.name || "").trim().toLowerCase();
+            });
+            const list = document.getElementById("accountReviewList");
+            document.getElementById("accountReviewCount").innerText = String(reviews.length);
+            loadUserNotifications();
+            list.innerHTML = reviews.length ? "" : '<p class="text-xs text-slate-500">No reviews shared by this account yet.</p>';
+            reviews.forEach((review) => {
+                const concerns = getReviewConcerns(review);
+                const card = document.createElement("div");
+                card.className = "bg-slate-50 rounded-2xl p-3";
+                card.innerHTML = `<div class="flex items-center justify-between gap-3 mb-2"><span class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(review.remedy)}</span><span class="text-[10px] text-amber-400">${getStars(review.rating || 5)}</span></div><p class="text-xs text-slate-600 mb-2">"${escapeHtml(review.comment)}"</p><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">${getUsefulCount(review)} useful � ${concerns.length} concerns</p><div class="mt-3 flex items-center gap-2"><span class="text-[10px] font-bold ${review.moderation_status === "rejected" ? "text-red-600 bg-red-50" : "text-green-700 bg-green-50"} px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(review.moderation_status || "approved")}</span><button type="button" class="moderate-btn px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-wide" data-status="approved">Publish</button><button type="button" class="moderate-btn px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-wide" data-status="rejected">Hide</button></div>`;
+                card.querySelectorAll(".moderate-btn").forEach((button) => {
+                    button.addEventListener("click", () => {
+                        fetch(`${API_BASE}/moderate-review`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                review_key: review.review_key || getReviewKey(review),
+                                status: button.dataset.status,
+                                moderated_by: getSavedAccount()?.name || "Owner"
+                            })
+                        }).then(() => loadGlobalReviews());
+                    });
+                });
+                if (concerns.length) {
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "mt-3 space-y-2";
+                    concerns.forEach((concern) => {
+                        const block = document.createElement("div");
+                        block.className = "bg-white rounded-xl p-3 border border-slate-200";
+                        block.innerHTML = `<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">${escapeHtml(concern.concern_author || concern.author || "Community Member")} asked</p><p class="text-xs text-slate-600 mb-2">${escapeHtml(concern.concern_text || concern.text || "")}</p>${concern.reply_text || concern.reply ? `<p class="text-xs text-blue-700 bg-blue-50 rounded-lg px-2 py-2"><span class="font-bold uppercase text-[10px] tracking-wide">Your correction:</span> ${escapeHtml(concern.reply_text || concern.reply || "")}</p>` : `<textarea class="reply-box w-full px-3 py-2 rounded-xl border border-slate-200 bg-white outline-none text-xs resize-none" rows="2" placeholder="Reply with a correction or clarification"></textarea><button type="button" class="reply-btn mt-2 px-3 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-wide">Post Correction</button>`}`;
+                        const btn = block.querySelector(".reply-btn");
+                        if (btn) btn.addEventListener("click", () => {
+                            const text = block.querySelector(".reply-box").value.trim();
+                            if (!text) { window.alert("Please write a correction before posting."); return; }
+                            fetch(`${API_BASE}/reply-concern`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ concern_id: concern.id, reply_text: text })
+                            }).then(() => loadGlobalReviews());
+                        });
+                        wrapper.appendChild(block);
+                    });
+                    card.appendChild(wrapper);
+                }
+                list.appendChild(card);
+            });
+        }
+
+        async function loadUserNotifications() {
+            const account = getSavedAccount();
+            const list = document.getElementById("accountNotificationList");
+            if (!account?.name) {
+                list.innerHTML = '<p class="text-xs text-slate-500">No notifications yet.</p>';
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                if (account.account_id) {
+                    params.set("account_id", account.account_id);
+                } else {
+                    params.set("user", account.name);
+                }
+                const response = await fetch(`${API_BASE}/user-notifications?${params.toString()}`);
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : [];
+                list.innerHTML = "";
+                if (!items.length) {
+                    list.innerHTML = '<p class="text-xs text-slate-500">No notifications yet.</p>';
+                    return;
+                }
+
+                items.slice(0, 4).forEach((item) => {
+                    const block = document.createElement("div");
+                    block.className = "bg-white rounded-xl p-3 border border-amber-100";
+                    block.innerHTML = `<p class="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">${escapeHtml(item.title || "Notification")}</p><p class="text-xs text-slate-600">${escapeHtml(item.message || "")}</p>`;
+                    list.appendChild(block);
+                });
+            } catch {
+                list.innerHTML = '<p class="text-xs text-slate-500">No notifications yet.</p>';
+            }
+        }
+
+        function addConcern(review, text) {
+            return fetch(`${API_BASE}/add-concern`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    review_key: review.review_key || getReviewKey(review),
+                    review_owner: review.user_name || "Anonymous",
+                    concern_author: getSavedAccount()?.name || "Community Member",
+                    concern_text: text
+                })
+            });
+        }
+
+        function markReviewUseful(review) {
+            fetch(`${API_BASE}/mark-useful`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    review_key: review.review_key || getReviewKey(review),
+                    user_name: getSavedAccount()?.name || "Anonymous"
+                })
+            }).then(() => loadGlobalReviews()).then(() => {
+                if (selectedId) {
+                    selectRemedy(selectedId);
+                }
+            });
+        }
+
+        function closeConcernModal() {
+            activeConcernReview = null;
+            const modal = document.getElementById("concernModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            document.getElementById("concernModalInput").value = "";
+        }
+
+        function openConcernModal(review) {
+            activeConcernReview = review;
+            document.getElementById("concernModalMeta").innerText = `Concern about ${review.user_name || "this review"} on ${review.remedy || "the selected remedy"}.`;
+            const modal = document.getElementById("concernModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            setTimeout(() => document.getElementById("concernModalInput").focus(), 0);
+        }
+
+        async function submitConcernModal() {
+            const text = document.getElementById("concernModalInput").value.trim();
+            if (!text) {
+                window.alert("Please write your concern before sharing.");
+                return;
+            }
+            if (!activeConcernReview) {
+                closeConcernModal();
+                return;
+            }
+
+            try {
+                await addConcern(activeConcernReview, text);
+                closeConcernModal();
+                await loadGlobalReviews();
+                if (selectedId) {
+                    await selectRemedy(selectedId);
+                }
+                const toast = document.getElementById("toast");
+                toast.innerText = "Concern shared successfully.";
+                toast.classList.remove("hidden");
+                setTimeout(() => toast.classList.add("hidden"), 2500);
+            } catch (error) {
+                window.alert(error.message || "Unable to share concern.");
+            }
+        }
+
+        function renderRemedies() {
+            const list = document.getElementById("remedyList"), select = document.getElementById("formRemedySelect");
+            list.innerHTML = ""; select.innerHTML = '<option value="" disabled selected>Select Remedy</option>';
+            const items = filteredRemedies();
+            if (!items.length) { return; }
+            items.forEach((remedy) => {
+                const icon = getRemedyIcon(remedy);
+                const highlightTags = getRemedyHighlights(remedy);
+                const card = document.createElement("div");
+                card.className = `remedy-item p-5 rounded-3xl cursor-pointer flex items-start gap-4 ${selectedId === remedy.id ? "active" : "bg-white border-slate-100"}`;
+                card.innerHTML = `<div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-slate-100">${icon}</div><div class="flex-grow min-w-0"><div class="flex items-center gap-2 flex-wrap mb-1"><h3 class="font-bold text-slate-800">${escapeHtml(remedy.title)}</h3>${remedy.doctorVerified ? getDoctorApprovedBadge() : ""}${highlightTags.map((tag) => `<span class="text-[10px] font-bold ${tag === "Popular" ? "text-fuchsia-700 bg-fuchsia-50" : tag === "Fast Relief" ? "text-emerald-700 bg-emerald-50" : "text-amber-700 bg-amber-50"} px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(tag)}</span>`).join("")}</div><p class="text-xs text-slate-500 font-medium leading-relaxed">${escapeHtml(remedy.desc)}</p><div class="mt-3 flex items-center gap-2"><span class="text-amber-400 text-sm tracking-wide">${getStars(remedy.rating)}</span><span class="text-xs font-bold text-slate-600">${Number(remedy.rating || 0) > 0 ? Number(remedy.rating || 0).toFixed(1) : "New"}</span><span class="text-[10px] font-bold text-slate-400 uppercase">${formatReviewCount(Number(remedy.reviewCount || 0))}</span></div><div class="mt-3 flex flex-wrap gap-2">${(remedy.tags || []).slice(0, 3).map((tag) => `<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">${escapeHtml(tag)}</span>`).join("")}</div>${getRemedyProvenance(remedy) ? `<p class="mt-3 text-[11px] text-slate-400">${escapeHtml(getRemedyProvenance(remedy))}</p>` : ""}${remedy.opinion ? `<p class="mt-2 text-xs text-slate-500 line-clamp-3">${escapeHtml(remedy.opinion)}</p>` : ""}</div>`;
+                card.onclick = () => selectRemedy(remedy.id);
+                list.appendChild(card);
+                const option = document.createElement("option");
+                option.value = remedy.title; option.textContent = remedy.title; select.appendChild(option);
+            });
+            if (selectedRemedyName) select.value = selectedRemedyName;
+        }
+
+        async function loadRemedies() {
+            const symptoms = Array.isArray(getSavedPatient()?.diseases) ? getSavedPatient().diseases : [];
+            if (!symptoms.length) { window.location.href = "Homemedicine.html"; return; }
+            const response = await fetch(`${API_BASE}/get-remedies`, { method: "POST", headers: getAuthHeaders(), body: JSON.stringify({ diseases: symptoms }) });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || "Unable to load remedies.");
+            remedies = data.map((item, index) => ({ id: item.id || item.remedy_id || item.remedy_name || `remedy-${index}`, title: item.remedy_name || item.title || "Unnamed Remedy", desc: item.description || item.desc || "No description available.", fullDesc: item.details || item.description || item.desc || "No additional usage details available.", rating: Number(item.rating || item.avg_rating || 0), doctorVerified: Boolean(item.doctor_verified), safeForUse: Boolean(item.safe_for_use || item.safeForUse || item.verified || item.approved), tags: item.tags || [], opinion: item.opinion || "", reviewCount: Number(item.review_count || 0), approvedByDoctor: item.approved_by_doctor || "", sharedByLocalUsers: Boolean(item.shared_by_local_users) }));
+            renderPersonalizedSuggestion();
+            renderRemedies();
+            await loadGlobalReviews();
+        }
+
+        function renderReviewSummary(remedy, reviews) {
+            const ratings = reviews.map((review) => Number(review.rating)).filter((rating) => Number.isFinite(rating) && rating > 0);
+            const avg = ratings.length ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : remedy.rating;
+            document.getElementById("avgRating").innerText = avg ? `${avg.toFixed(1)} / 5` : "New";
+            document.getElementById("avgStars").innerHTML = getStars(avg || 0);
+            document.getElementById("reviewCount").innerText = reviews.length ? `Based on ${formatReviewCount(reviews.length)}` : "Waiting for first approved review";
+            const distribution = getRatingDistribution(reviews);
+            const total = Math.max(1, reviews.length);
+            document.getElementById("ratingBars").innerHTML = [5, 4, 3, 2, 1].map((star) => `
+                <div class="flex items-center gap-3 mb-2 last:mb-0">
+                    <span class="text-[11px] font-bold text-slate-500 w-10">${star} star</span>
+                    <div class="rating-bar-track flex-1"><div class="rating-bar-fill" style="width:${(distribution[star] / total) * 100}%"></div></div>
+                    <span class="text-[11px] text-slate-400 w-6 text-right">${distribution[star]}</span>
+                </div>
+            `).join("");
+        }
+
+        async function renderSelectedRemedy(remedy, reviews) {
+            document.getElementById("emptyReviewState").classList.add("hidden");
+            document.getElementById("activeReviewState").classList.remove("hidden");
+            renderReviewSummary(remedy, reviews);
+            const symptomMedicineNotes = await getSymptomMedicineNotes(remedy);
+            const medicineSuggestions = getMedicineSuggestions(remedy, symptomMedicineNotes);
+            const list = document.getElementById("dynamicReviewList");
+            list.innerHTML = `
+                <div class="section-block p-5 mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <h4 class="font-bold text-slate-800 text-sm">Detailed Usage</h4>
+                        ${remedy.doctorVerified ? getDoctorApprovedBadge() : ""}
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">${escapeHtml(remedy.fullDesc)}</p>
+                    <div class="mt-4 rounded-2xl px-4 py-3 ${remedy.doctorVerified || remedy.safeForUse ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}">
+                        <p class="text-[10px] font-bold uppercase tracking-widest mb-1">${remedy.doctorVerified || remedy.safeForUse ? "Safety Verified" : "Needs Professional Review"}</p>
+                        <p class="text-xs leading-relaxed">${remedy.doctorVerified || remedy.safeForUse ? "This remedy is approved in your current library." : "Community opinions are available, but professional confirmation is still recommended."}</p>
+                    </div>
+                </div>
+                <div class="section-block p-5 mb-4">
+                    <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Suggested Treatments</h5>
+                    ${
+                        medicineSuggestions.length
+                            ? medicineSuggestions.map((item) => `
+                                <div class="mb-3 last:mb-0 border border-slate-100 rounded-2xl p-3">
+                                    <div class="flex items-center justify-between gap-3 mb-2">
+                                        <p class="text-sm font-bold text-slate-800">${escapeHtml(item.title)}</p>
+                                        <span class="text-[9px] font-bold ${item.source === "Ayurveda" ? "text-emerald-700 bg-emerald-50" : item.source === "Home Remedy" ? "text-amber-700 bg-amber-50" : item.source === "Homeopathy" ? "text-violet-700 bg-violet-50" : "text-blue-700 bg-blue-50"} px-2 py-1 rounded-full">${escapeHtml(item.source)}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 leading-relaxed">${escapeHtml(item.subtitle)}</p>
+                                </div>
+                            `).join("")
+                            : '<p class="text-xs text-slate-500">No medicine suggestions were found for this remedy right now.</p>'
+                    }
+                </div>
+                <div class="section-block p-5 mb-4">
+                    <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">More Support Options</h5>
+                    ${
+                        symptomMedicineNotes.length
+                            ? symptomMedicineNotes.map((note) => `
+                                <div class="mb-3 last:mb-0 border border-slate-100 rounded-2xl p-3">
+                                    <div class="flex items-center justify-between gap-3 mb-2">
+                                        <p class="text-sm font-bold text-slate-800">${escapeHtml(note.title)}</p>
+                                        <span class="text-[9px] font-bold ${getMedicineSuggestions(null, [note])[0]?.source === "Ayurveda" ? "text-emerald-700 bg-emerald-50" : getMedicineSuggestions(null, [note])[0]?.source === "Home Remedy" ? "text-amber-700 bg-amber-50" : getMedicineSuggestions(null, [note])[0]?.source === "Homeopathy" ? "text-violet-700 bg-violet-50" : "text-blue-700 bg-blue-50"} px-2 py-1 rounded-full">${escapeHtml(getMedicineSuggestions(null, [note])[0]?.source || "Allopathy")}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 leading-relaxed">${escapeHtml(note.snippet)}</p>
+                                </div>
+                            `).join("")
+                            : '<p class="text-xs text-slate-500">No extra support options were found for the selected symptoms right now.</p>'
+                    }
+                </div>
+            `;
+        }
+
+        async function selectRemedy(id) {
+            selectedId = id; renderRemedies();
+            const remedy = remedies.find((item) => item.id === id); if (!remedy) return;
+            selectedRemedyName = remedy.title;
+            let reviews = [];
+            try {
+                const response = await fetch(`${API_BASE}/get-reviews`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remedy: remedy.title }) });
+                reviews = await response.json(); if (!Array.isArray(reviews)) reviews = [];
+            } catch { reviews = []; }
+            reviews = [...reviews, ...getLocalReviews().filter((review) => String(review.remedy || "").toLowerCase() === remedy.title.toLowerCase())];
+            await renderSelectedRemedy(remedy, reviews); document.getElementById("formRemedySelect").value = remedy.title;
+        }
+
+        function renderGlobalReviews() {
+            const grid = document.getElementById("globalReviewGrid");
+            const visibleReviews = getRelevantGlobalReviews().sort((left, right) => {
+                const usefulDelta = Number(right.useful_count || 0) - Number(left.useful_count || 0);
+                if (usefulDelta !== 0) {
+                    return usefulDelta;
+                }
+                return new Date(right.created_at || 0).getTime() - new Date(left.created_at || 0).getTime();
+            });
+            grid.innerHTML = "";
+            if (!visibleReviews.length) { return; }
+            visibleReviews.forEach((review) => {
+                const preview = truncateText(review.comment, 150);
+                const card = document.createElement("div");
+                card.className = "bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-blue-200 transition-all";
+                card.innerHTML = `<div><div class="flex justify-between items-center mb-4"><span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg uppercase tracking-wider">${escapeHtml(review.remedy)}</span><div class="flex text-amber-400 text-xs">${getStars(review.rating || 5)}</div></div><div class="flex items-center justify-between mb-3"><span class="text-xs font-bold text-slate-700">${escapeHtml(review.user_name || "Anonymous")}</span><span class="text-[11px] text-slate-400">${escapeHtml(getTimeAgo(review.created_at))}</span></div><div class="flex flex-wrap gap-2 mb-3">${review.remedy_category ? `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">${escapeHtml(review.remedy_category)}</span>` : ""}${review.related_conditions ? `<span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full">${escapeHtml(review.related_conditions)}</span>` : ""}${Number(review.useful_count || 0) > 0 ? `<span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-full">${escapeHtml(review.useful_count)} Helpful</span>` : ""}</div><p class="text-slate-600 text-sm leading-relaxed mb-3 global-review-text">${escapeHtml(preview.preview)}</p>${preview.truncated ? '<button type="button" class="global-read-more text-[11px] font-bold text-blue-600 mb-3">Read more</button>' : ''}</div><div class="flex items-center justify-between border-t border-slate-50 pt-4 mt-4"><span class="text-xs font-bold text-slate-400">${formatReviewCount(1)}</span><div class="flex items-center gap-3"><button class="review-concern-btn text-[10px] font-bold text-slate-300 hover:text-amber-500" type="button">${getReviewConcerns(review).length} CONCERNS</button><button class="review-useful-btn text-[10px] font-bold ${Number(review.useful_count || 0) > 0 ? "text-blue-600" : "text-slate-300 hover:text-blue-500"}" type="button">${getUsefulCount(review)} USEFUL</button></div></div>`;
+                card.onclick = async () => { const match = remedies.find((item) => item.title.toLowerCase() === String(review.remedy).toLowerCase()); if (match) { await selectRemedy(match.id); window.scrollTo({ top: 0, behavior: "smooth" }); } };
+                card.querySelector(".review-useful-btn").addEventListener("click", (event) => { event.stopPropagation(); markReviewUseful(review); });
+                const concernButton = card.querySelector(".review-concern-btn");
+                concernButton.addEventListener("click", (event) => {
+                    event.stopPropagation();
+                    openConcernModal(review);
+                });
+                const readMoreBtn = card.querySelector(".global-read-more");
+                if (readMoreBtn) {
+                    readMoreBtn.addEventListener("click", (event) => {
+                        event.stopPropagation();
+                        const expanded = readMoreBtn.dataset.expanded === "1";
+                        card.querySelector(".global-review-text").innerText = expanded ? preview.preview : review.comment;
+                        readMoreBtn.dataset.expanded = expanded ? "0" : "1";
+                        readMoreBtn.innerText = expanded ? "Read more" : "Show less";
+                    });
+                }
+                grid.appendChild(card);
+            });
+        }
+
+        async function loadGlobalReviews() {
+            const response = await fetch(`${API_BASE}/all-reviews`);
+            const reviewGroups = response.ok ? [await response.json()] : [[]];
+            const seen = new Set();
+            globalReviews = [...reviewGroups.flat(), ...getLocalReviews()].filter((review) => { const key = review.review_key || getReviewKey(review); if (seen.has(key)) return false; seen.add(key); return true; });
+            renderGlobalReviews(); renderAccountPanel();
+        }
+
+        function toggleReviewForm() {
+            const form = document.getElementById("reviewFormContainer");
+            const remedySelect = document.getElementById("formRemedySelect");
+            if (selectedRemedyName) remedySelect.value = selectedRemedyName;
+            if (form.classList.contains("hidden")) document.getElementById("procedureConfirm").checked = false;
+            form.classList.toggle("hidden");
+        }
+
+        async function submitNewReview() {
+            const typedRemedy = document.getElementById("customRemedyInput").value.trim();
+            const selectedRemedy = document.getElementById("formRemedySelect").value || selectedRemedyName;
+            const chosenRemedy = typedRemedy || selectedRemedy;
+            const comment = document.getElementById("formComment").value.trim();
+            const remedyCategory = document.getElementById("reviewCategorySelect").value;
+            const relatedConditions = document.getElementById("relatedConditionsInput").value.trim();
+            if (!chosenRemedy || !comment) { window.alert("Please enter a remedy name and write your experience."); return; }
+            const account = getSavedAccount();
+            if (!account?.name) { window.alert("Please login with an account before posting a review."); return; }
+            const response = await fetch(`${API_BASE}/add-review`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ remedy: chosenRemedy, account_id: account.account_id || null, user_name: account.name, comment, rating: selectedReviewRating, remedy_category: remedyCategory, related_conditions: relatedConditions }) });
+            const newReview = { remedy: chosenRemedy, account_id: account.account_id || null, user_name: account.name, comment, rating: selectedReviewRating, remedy_category: remedyCategory, related_conditions: relatedConditions, created_at: new Date().toISOString() };
+            let wasSavedToServer = false;
+            try {
+                const result = await response.json();
+                if (response.ok) wasSavedToServer = true; else throw new Error(result.message || "Unable to submit review.");
+            } catch {
+                const local = getLocalReviews(); local.unshift(newReview); saveLocalReviews(local);
+            }
+            document.getElementById("customRemedyInput").value = "";
+            document.getElementById("reviewCategorySelect").value = "";
+            document.getElementById("relatedConditionsInput").value = "";
+            document.getElementById("formComment").value = "";
+            document.getElementById("procedureConfirm").checked = false;
+            selectedReviewRating = 5;
+            renderRatingPicker();
+            document.getElementById("reviewFormContainer").classList.add("hidden");
+            await loadGlobalReviews(); if (selectedId) await selectRemedy(selectedId);
+            const toast = document.getElementById("toast"); toast.innerText = wasSavedToServer ? "Review shared for doctor approval." : "Review saved locally and shown now."; toast.classList.remove("hidden"); setTimeout(() => toast.classList.add("hidden"), 3000);
+        }
+
+        window.onload = async () => {
+            updateAccountBadge();
+            document.getElementById("accountToggle").addEventListener("click", toggleAccountPanel);
+            document.getElementById("viewHistoryBtn").addEventListener("click", goToProfileHistory);
+            document.getElementById("doctorPanelBtn").addEventListener("click", goToDoctorPanel);
+            document.getElementById("logoutBtn").addEventListener("click", logout);
+            document.addEventListener("click", (event) => { const badge = document.getElementById("accountBadge"); if (accountPanelOpen && !badge.contains(event.target)) { accountPanelOpen = false; document.getElementById("accountPanel").classList.add("hidden"); } });
+            document.getElementById("remedySearchInput").addEventListener("input", renderRemedies);
+            document.getElementById("tagFilterSelect").addEventListener("change", renderRemedies);
+            document.getElementById("sortSelect").addEventListener("change", renderRemedies);
+            document.getElementById("concernModalClose").addEventListener("click", closeConcernModal);
+            document.getElementById("concernModalCancel").addEventListener("click", closeConcernModal);
+            document.getElementById("concernModalSubmit").addEventListener("click", submitConcernModal);
+            document.getElementById("concernModal").addEventListener("click", (event) => {
+                if (event.target.id === "concernModal") {
+                    closeConcernModal();
+                }
+            });
+            renderRatingPicker();
+            try { await loadRemedies(); } catch (error) { document.getElementById("remedyList").innerHTML = `<div class="bg-red-50 border border-red-200 rounded-3xl p-6 text-sm text-red-600">${escapeHtml(error.message || "Something went wrong while loading the page.")}</div>`; }
+        };
+    </script>
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEAL TOGETHER - Doctor Site</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 0.8px, transparent 0.8px);
+            background-size: 24px 24px;
+            color: #1e293b;
+        }
+        .main-card {
+            background: #fff;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4 md:px-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">HEAL TOGETHER</h1>
+                <p class="text-slate-500 font-medium">Doctor Site For Remedy Approval And Patient History</p>
+            </div>
+            <div class="flex flex-col items-start md:items-end gap-3">
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Doctor Session</p>
+                    <p id="doctorSessionName" class="text-lg font-black text-slate-800">Doctor</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="doctorLogoutBtn" type="button" class="px-5 py-3 bg-red-50 text-red-600 font-bold rounded-2xl hover:bg-red-100">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="doctorToast" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-sm z-50"></div>
+        <div id="doctorModal" class="hidden fixed inset-0 z-50 bg-slate-900/35 flex items-center justify-center p-4">
+            <div class="main-card rounded-[2rem] w-full max-w-xl p-6">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Doctor Action</p>
+                        <h2 id="doctorModalTitle" class="text-xl font-black text-slate-800">Doctor says</h2>
+                    </div>
+                    <button id="closeDoctorModalBtn" type="button" class="text-sm font-bold text-slate-400 hover:text-slate-700">Close</button>
+                </div>
+                <p id="doctorModalSubtitle" class="text-sm text-slate-500 mb-4">Add your review note for this remedy.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Doctor Note</label>
+                        <textarea id="doctorNoteInput" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none text-sm resize-none" placeholder="Write your doctor note"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Suggested Alternative</label>
+                        <input id="doctorAlternativeInput" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none text-sm" placeholder="Suggest an alternative medicine or remedy">
+                    </div>
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button id="cancelDoctorModalBtn" type="button" class="px-4 py-3 text-sm font-bold text-slate-500">Cancel</button>
+                        <button id="submitDoctorModalBtn" type="button" class="px-5 py-3 bg-slate-900 text-white text-sm font-bold rounded-xl">Save Doctor Decision</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+            <div class="xl:col-span-3 space-y-6">
+                <div class="main-card rounded-[2rem] p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Search Remedy</label>
+                            <input id="searchInput" type="text" placeholder="Search by remedy or condition" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Queue Filter</label>
+                            <select id="statusFilter" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                                <option value="all">All</option>
+                                <option value="pending">Pending</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Severity Filter</label>
+                            <select id="severityFilter" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                                <option value="all">All Severity</option>
+                                <option value="severe">Severe Only</option>
+                                <option value="moderate">Moderate Or Higher</option>
+                                <option value="mild">Mild</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Duration Filter</label>
+                            <select id="durationFilter" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white outline-none">
+                                <option value="all">All Duration</option>
+                                <option value="chronic">Chronic</option>
+                                <option value="2-weeks">2 Weeks Or More</option>
+                                <option value="1-week">About A Week</option>
+                                <option value="2-3-days">2-3 Days</option>
+                                <option value="1-day">Less Than 24 Hours</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4">Doctors can approve or reject remedies here. The note is saved with the doctor name and shown in the remedy library.</p>
+                </div>
+
+                <div id="remedyGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+            </div>
+
+            <div class="xl:col-span-2 space-y-6">
+                <div class="main-card rounded-[2rem] p-6">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Doctor Notifications</p>
+                            <p class="text-sm text-slate-500">New concerns and approvals shared with doctors</p>
+                        </div>
+                    </div>
+                    <div id="doctorNotificationList" class="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+                        <p class="text-sm text-slate-500">No notifications yet.</p>
+                    </div>
+                </div>
+
+                <div class="main-card rounded-[2rem] p-6">
+                    <div class="flex items-center justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Patient History</p>
+                            <p class="text-sm text-slate-500">Symptoms, dates, and submitted details</p>
+                        </div>
+                    </div>
+                    <div id="patientSummaryCard" class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4 hidden"></div>
+                    <div id="patientHistoryList" class="space-y-4 max-h-[900px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:5000";
+        let doctorRemedies = [];
+        let patientHistory = [];
+        let expandedReviewRemedy = "";
+        let pendingApprovalAction = null;
+        let remedyConcernMap = {};
+        let allReviewDetails = [];
+
+        function escapeHtml(value) {
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function normalizeRemedyName(value) {
+            return String(value || "")
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function remedyNamesMatch(left, right) {
+            const a = normalizeRemedyName(left);
+            const b = normalizeRemedyName(right);
+            if (!a || !b) {
+                return false;
+            }
+            return a === b || a.includes(b) || b.includes(a);
+        }
+
+        function getMatchedReviews(remedyName) {
+            return allReviewDetails.filter((review) => remedyNamesMatch(review.remedy, remedyName));
+        }
+
+        function getReviewConcernCount(reviews) {
+            return reviews.reduce((sum, review) => sum + Number(review.concern_count || (Array.isArray(review.concerns) ? review.concerns.length : 0) || 0), 0);
+        }
+
+        function getHighestSeverity(patient) {
+            const severityLines = Array.isArray(patient?.severity_history) ? patient.severity_history : [];
+            const normalized = severityLines.map((entry) => String(entry.severity_level || "").trim().toLowerCase());
+            if (normalized.includes("severe")) return "severe";
+            if (normalized.includes("moderate")) return "moderate";
+            if (normalized.includes("mild")) return "mild";
+            return "";
+        }
+
+        function getPriorityTag(patient) {
+            const severity = getHighestSeverity(patient);
+            const duration = String(patient?.duration || "").trim().toLowerCase();
+            if (severity === "severe" || duration === "chronic" || duration === "2-weeks") {
+                return {
+                    label: "Needs Attention",
+                    tone: "bg-amber-50 text-amber-700 border-amber-100",
+                    icon: "⚠️"
+                };
+            }
+
+            return {
+                label: "Safe for Home Remedy",
+                tone: "bg-emerald-50 text-emerald-700 border-emerald-100",
+                icon: "🟢"
+            };
+        }
+
+        function getSuggestedRemedyForPatient(patient) {
+            const patientSymptoms = String(patient?.symptoms || "")
+                .split(",")
+                .map((item) => normalizeRemedyName(item))
+                .filter(Boolean);
+
+            if (!patientSymptoms.length) {
+                return "No clear remedy match";
+            }
+
+            const match = doctorRemedies.find((remedy) => {
+                const disease = normalizeRemedyName(remedy.disease || "");
+                return patientSymptoms.some((symptom) => remedyNamesMatch(disease, symptom));
+            });
+
+            return match?.remedy_name || "No clear remedy match";
+        }
+
+        function getPatientSharedReviews(patient) {
+            const patientName = String(patient?.name || "").trim().toLowerCase();
+            if (!patientName) {
+                return [];
+            }
+
+            return allReviewDetails.filter((review) => String(review.user_name || "").trim().toLowerCase() === patientName);
+        }
+
+        function getDoctorDecisionForPatient(patient) {
+            const patientReviews = getPatientSharedReviews(patient);
+            if (!patientReviews.length) {
+                return null;
+            }
+
+            const suggestedRemedy = getSuggestedRemedyForPatient(patient);
+            const matchedRemedy = doctorRemedies.find((remedy) => remedyNamesMatch(remedy.remedy_name, suggestedRemedy));
+            if (!matchedRemedy) {
+                return "Pending";
+            }
+
+            return getRemedyStatus(matchedRemedy);
+        }
+
+        function filteredPatientHistory() {
+            const severityFilter = String(document.getElementById("severityFilter")?.value || "all").toLowerCase();
+            const durationFilter = String(document.getElementById("durationFilter")?.value || "all").toLowerCase();
+
+            return patientHistory.filter((patient) => {
+                const severity = getHighestSeverity(patient);
+                const duration = String(patient.duration || "").trim().toLowerCase();
+
+                const matchesSeverity =
+                    severityFilter === "all" ||
+                    (severityFilter === "severe" && severity === "severe") ||
+                    (severityFilter === "moderate" && ["severe", "moderate"].includes(severity)) ||
+                    (severityFilter === "mild" && severity === "mild");
+
+                const matchesDuration = durationFilter === "all" || duration === durationFilter;
+
+                return matchesSeverity && matchesDuration;
+            });
+        }
+
+        function renderPatientSummary() {
+            const summary = document.getElementById("patientSummaryCard");
+            const patients = filteredPatientHistory();
+
+            if (!summary || !patients.length) {
+                summary?.classList.add("hidden");
+                return;
+            }
+
+            const patient = patients[0];
+            const priority = getPriorityTag(patient);
+            const symptoms = String(patient.symptoms || "Not provided");
+            const severity = getHighestSeverity(patient) || "Not recorded";
+            const duration = patient.duration || "Not provided";
+            const suggestedRemedy = getSuggestedRemedyForPatient(patient);
+            const doctorDecision = getDoctorDecisionForPatient(patient);
+            const hasDoctorDecision = Boolean(doctorDecision);
+
+            summary.classList.remove("hidden");
+            summary.innerHTML = `
+                <div class="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Patient Summary</p>
+                        <p class="text-lg font-black text-slate-800">${escapeHtml(patient.name || "Patient")}</p>
+                    </div>
+                    <span class="inline-flex items-center gap-2 text-[10px] font-bold border px-3 py-1 rounded-full uppercase tracking-wide ${priority.tone}">${priority.icon} ${escapeHtml(priority.label)}</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div class="bg-white rounded-xl border border-blue-100 px-3 py-3"><span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Symptoms</span><span class="text-slate-700">${escapeHtml(symptoms)}</span></div>
+                    <div class="bg-white rounded-xl border border-blue-100 px-3 py-3"><span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Severity</span><span class="text-slate-700">${escapeHtml(severity)}</span></div>
+                    <div class="bg-white rounded-xl border border-blue-100 px-3 py-3"><span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Duration</span><span class="text-slate-700">${escapeHtml(duration)}</span></div>
+                    <div class="bg-white rounded-xl border border-blue-100 px-3 py-3"><span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Suggested Remedy</span><span class="text-slate-700">${escapeHtml(suggestedRemedy)}</span></div>
+                </div>
+                ${hasDoctorDecision ? `
+                    <div class="mt-3 bg-white rounded-xl border border-blue-100 px-3 py-3">
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">Doctor Decision</span>
+                        <span class="text-slate-700">${escapeHtml(doctorDecision)}</span>
+                    </div>
+                ` : ""}
+            `;
+        }
+
+        function getDoctorSession() {
+            try {
+                return JSON.parse(localStorage.getItem("healthAppDoctorSession")) || null;
+            } catch {
+                return null;
+            }
+        }
+
+        function getAuthToken() {
+            return localStorage.getItem("healthAppAuthToken") || getDoctorSession()?.token || "";
+        }
+
+        function getAuthHeaders() {
+            return {
+                "Content-Type": "application/json",
+                ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {})
+            };
+        }
+
+        function clearDoctorSession() {
+            localStorage.removeItem("healthAppDoctorSession");
+            localStorage.removeItem("healthAppAuthToken");
+        }
+
+        function requireDoctorSession() {
+            const session = getDoctorSession();
+            if (!session?.username || !getAuthToken() || !["doctor", "admin"].includes(String(session.role || "").toLowerCase())) {
+                window.location.href = "index.html";
+                return null;
+            }
+
+            document.getElementById("doctorSessionName").innerText = session.displayName || session.username;
+            return session;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("doctorToast");
+            toast.innerText = message;
+            toast.classList.remove("hidden");
+            setTimeout(() => toast.classList.add("hidden"), 2500);
+        }
+
+        async function loadDoctorNotifications() {
+            const session = getDoctorSession();
+            const list = document.getElementById("doctorNotificationList");
+            if (!session) {
+                list.innerHTML = '<p class="text-sm text-slate-500">No notifications yet.</p>';
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                if (session.account_id || session.accountId) {
+                    params.set("account_id", session.account_id || session.accountId);
+                } else {
+                    params.set("user", session.displayName || session.username || "Doctor");
+                }
+
+                const response = await fetch(`${API_BASE}/user-notifications?${params.toString()}`);
+                const data = await response.json();
+                const items = Array.isArray(data) ? data : [];
+                list.innerHTML = items.length ? "" : '<p class="text-sm text-slate-500">No notifications yet.</p>';
+
+                items.slice(0, 6).forEach((item) => {
+                    const block = document.createElement("div");
+                    block.className = "bg-slate-50 rounded-2xl border border-slate-100 px-4 py-3";
+                    block.innerHTML = `
+                        <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wide mb-1">${escapeHtml(item.title || "Notification")}</p>
+                        <p class="text-sm text-slate-600">${escapeHtml(item.message || "")}</p>
+                    `;
+                    list.appendChild(block);
+                });
+            } catch {
+                list.innerHTML = '<p class="text-sm text-slate-500">No notifications yet.</p>';
+            }
+        }
+
+        function getDoctorSignatureBlock(doctorName, dateText) {
+            if (!doctorName) {
+                return "";
+            }
+
+            const displayName = String(doctorName).trim().replace(/^dr\.?\s*/i, "");
+
+            return `
+                <div class="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <p class="text-sm font-bold text-slate-800">${escapeHtml(`DR ${displayName}`)}</p>
+                    <p class="text-[11px] text-slate-500">HEAL TOGETHER CLINIC</p>
+                    <p class="text-[11px] text-slate-500">Community Review & Remedy Desk</p>
+                    <p class="text-[11px] text-slate-400">Reg no.: ${escapeHtml(displayName.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "htclinic")}</p>
+                    ${dateText ? `<p class="text-[10px] text-slate-400 mt-1">${escapeHtml(dateText)}</p>` : ""}
+                </div>
+            `;
+        }
+
+        function closeDoctorModal() {
+            pendingApprovalAction = null;
+            document.getElementById("doctorModal").classList.add("hidden");
+            document.getElementById("doctorNoteInput").value = "";
+            document.getElementById("doctorAlternativeInput").value = "";
+        }
+
+        function openDoctorApprovalModal(remedyName, status, existingAlternative = "") {
+            const session = requireDoctorSession();
+            if (!session) {
+                return;
+            }
+
+            pendingApprovalAction = {
+                remedyName,
+                status,
+                doctorName: session.displayName || session.username
+            };
+
+            document.getElementById("doctorModalTitle").innerText = `${pendingApprovalAction.doctorName} says`;
+            document.getElementById("doctorModalSubtitle").innerText = `Add your ${status} note for "${remedyName}".`;
+            document.getElementById("doctorNoteInput").value = "";
+            document.getElementById("doctorAlternativeInput").value = existingAlternative || "";
+            document.getElementById("doctorModal").classList.remove("hidden");
+        }
+
+        function getRemedyStatus(remedy) {
+            const approvals = Array.isArray(remedy.approvals) ? remedy.approvals : [];
+            const latestApproval = approvals[0] || null;
+            if (latestApproval?.status) {
+                return String(latestApproval.status).toLowerCase();
+            }
+
+            if (remedy.doctor_verified) {
+                return "approved";
+            }
+
+            if (approvals.some((item) => String(item.status).toLowerCase() === "rejected")) {
+                return "rejected";
+            }
+
+            return "pending";
+        }
+
+        function filteredRemedies() {
+            const searchTerm = String(document.getElementById("searchInput").value || "").trim().toLowerCase();
+            const statusFilter = document.getElementById("statusFilter").value || "all";
+
+            return doctorRemedies.filter((remedy) => {
+                const currentStatus = getRemedyStatus(remedy);
+                const haystack = `${remedy.remedy_name || ""} ${remedy.description || ""} ${remedy.disease || ""}`.toLowerCase();
+                const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+                const matchesStatus = statusFilter === "all" || currentStatus === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+        }
+
+        async function submitDoctorApproval() {
+            if (!pendingApprovalAction) {
+                return;
+            }
+
+            const notes = document.getElementById("doctorNoteInput").value.trim();
+            const suggestedAlternative = document.getElementById("doctorAlternativeInput").value.trim();
+            if (!notes) {
+                showToast("Please add a doctor note before saving.");
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/doctor-approve-remedy`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    remedy_name: pendingApprovalAction.remedyName,
+                    doctor_name: pendingApprovalAction.doctorName,
+                    status: pendingApprovalAction.status,
+                    notes,
+                    suggested_alternative: suggestedAlternative
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                showToast(result.message || "Unable to update remedy approval.");
+                return;
+            }
+
+            closeDoctorModal();
+            showToast(result.message || "Approval updated.");
+            await loadDoctorData();
+        }
+
+        async function toggleReviews(remedyName) {
+            expandedReviewRemedy = expandedReviewRemedy === remedyName ? "" : remedyName;
+            if (!expandedReviewRemedy) {
+                renderRemedies();
+                return;
+            }
+
+            const target = doctorRemedies.find((item) => item.remedy_name === remedyName);
+            if (target) {
+                target.review_details = getMatchedReviews(remedyName);
+            }
+            await loadRemedyConcerns(remedyName);
+            renderRemedies();
+        }
+
+        async function loadRemedyConcerns(remedyName) {
+            try {
+                const response = await fetch(`${API_BASE}/get-remedy-questions?remedy=${encodeURIComponent(remedyName)}&include_pending=1`);
+                const data = await response.json();
+                remedyConcernMap[remedyName] = Array.isArray(data) ? data : [];
+            } catch {
+                remedyConcernMap[remedyName] = [];
+            }
+        }
+
+        async function approveReviewByDoctor(review) {
+            const session = requireDoctorSession();
+            if (!session) {
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/doctor-approve-review`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    review_key: review.review_key,
+                    review_owner: review.user_name,
+                    review_owner_account_id: review.account_id || null,
+                    doctor_name: session.displayName || session.username,
+                    note: `Approved by ${session.displayName || session.username}`,
+                    remedy: review.remedy
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                showToast(result.message || "Unable to approve review.");
+                return;
+            }
+
+            showToast(`${session.displayName || session.username} approved this review.`);
+            await loadDoctorData();
+            if (expandedReviewRemedy === review.remedy) {
+                expandedReviewRemedy = "";
+                await toggleReviews(review.remedy);
+            }
+        }
+
+        async function answerRemedyConcern(item) {
+            const session = requireDoctorSession();
+            if (!session) {
+                return;
+            }
+
+            const answerText = window.prompt(`${session.displayName || session.username} says: answer this concern`, item.answer_text || "");
+            if (!answerText || !answerText.trim()) {
+                return;
+            }
+
+            const prescribedMedicine = window.prompt(`${session.displayName || session.username} says: prescribe a medicine if needed`, item.prescribed_medicine || "");
+            if (prescribedMedicine === null) {
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/add-remedy-question-reply`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    question_id: item.id,
+                    author_name: session.displayName || session.username,
+                    author_role: "doctor",
+                    message_text: answerText.trim(),
+                    prescribed_medicine: prescribedMedicine
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                showToast(result.message || "Unable to answer this concern.");
+                return;
+            }
+
+            showToast(`DR ${String(session.displayName || session.username).replace(/^dr\.?\s*/i, "")} answered this concern.`);
+            await loadRemedyConcerns(item.remedy_name);
+            renderRemedies();
+        }
+
+        async function answerReviewConcern(concern) {
+            const session = requireDoctorSession();
+            if (!session) {
+                return;
+            }
+
+            const replyText = window.prompt(`${session.displayName || session.username} says: reply to this review concern`, concern.reply_text || "");
+            if (!replyText || !replyText.trim()) {
+                return;
+            }
+
+            const response = await fetch(`${API_BASE}/reply-concern`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    concern_id: concern.id,
+                    reply_text: replyText.trim()
+                })
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                showToast(result.message || "Unable to reply to this review concern.");
+                return;
+            }
+
+            showToast("Review concern answered.");
+            await loadDoctorData();
+            if (expandedReviewRemedy) {
+                const keepOpen = expandedReviewRemedy;
+                expandedReviewRemedy = "";
+                await toggleReviews(keepOpen);
+            }
+        }
+
+        function renderRemedies() {
+            const remedyGrid = document.getElementById("remedyGrid");
+            const items = filteredRemedies();
+            remedyGrid.innerHTML = "";
+
+            if (!items.length) {
+                remedyGrid.innerHTML = '<div class="main-card rounded-[2rem] p-6 text-sm text-slate-500">No remedies match the current search or filter.</div>';
+                return;
+            }
+
+            items.forEach((remedy) => {
+                const approvals = Array.isArray(remedy.approvals) ? remedy.approvals : [];
+                const latestApproval = approvals[0] || null;
+                const status = getRemedyStatus(remedy);
+                const reviews = getMatchedReviews(remedy.remedy_name);
+                const concerns = Array.isArray(remedyConcernMap[remedy.remedy_name]) ? remedyConcernMap[remedy.remedy_name] : [];
+                const totalReviewConcerns = getReviewConcernCount(reviews);
+                const pendingReviews = reviews.filter((review) => String(review.doctor_review_status || review.moderation_status || "").toLowerCase() !== "approved");
+                const card = document.createElement("div");
+                card.className = "main-card rounded-[2rem] p-6";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">${escapeHtml(remedy.disease || "General Care")}</p>
+                            <h2 class="text-xl font-black text-slate-800">${escapeHtml(remedy.remedy_name)}</h2>
+                        </div>
+                        <span class="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide ${status === "approved" ? "bg-green-50 text-green-700" : status === "rejected" ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-700"}">${escapeHtml(status)}</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">${escapeHtml(remedy.description || "No description available.")}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(reviews.length)} Reviews</span>
+                        <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(pendingReviews.length)} Shared Reviews</span>
+                        <span class="text-[10px] font-bold text-fuchsia-700 bg-fuchsia-50 px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(concerns.length + totalReviewConcerns)} Concerns</span>
+                        ${remedy.doctor_verified ? '<span class="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full uppercase tracking-wide">Doctor Approved In App</span>' : ""}
+                    </div>
+                    <div class="bg-slate-50 rounded-2xl p-4 mb-4">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Latest Doctor Note</p>
+                        <p class="text-sm text-slate-600">${escapeHtml(latestApproval?.notes || "No doctor note yet.")}</p>
+                        <p class="text-xs text-slate-500 mt-2"><span class="font-semibold text-slate-700">Suggested Alternative:</span> ${escapeHtml(latestApproval?.suggested_alternative || "No alternative suggested yet.")}</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wide mt-2">${escapeHtml(latestApproval ? `${latestApproval.doctor_name} | ${latestApproval.updated_at}` : "Awaiting review")}</p>
+                        ${latestApproval?.doctor_name ? getDoctorSignatureBlock(latestApproval.doctor_name, latestApproval.updated_at || "") : ""}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" class="approve-btn px-4 py-3 bg-green-600 text-white text-sm font-bold rounded-xl">Approve</button>
+                        <button type="button" class="reject-btn px-4 py-3 bg-red-50 text-red-600 text-sm font-bold rounded-xl">Reject</button>
+                        <button type="button" class="reviews-btn px-4 py-3 bg-blue-50 text-blue-700 text-sm font-bold rounded-xl">${expandedReviewRemedy === remedy.remedy_name ? "Hide Reviews" : `View Reviews (${reviews.length})`}</button>
+                    </div>
+                    ${expandedReviewRemedy === remedy.remedy_name ? `
+                        <div class="mt-4 bg-slate-50 rounded-2xl p-4">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Community Reviews</p>
+                            ${reviews.length ? reviews.map((review) => `
+                                <div class="bg-white rounded-2xl p-3 border border-slate-100 mb-3">
+                                    <div class="flex items-center justify-between gap-3 mb-2">
+                                        <span class="text-xs font-bold text-slate-800">${escapeHtml(review.user_name || "Anonymous")}</span>
+                                        <span class="text-[10px] font-bold text-amber-500">Rating ${escapeHtml(review.rating || "N/A")} ${"&#9733;".repeat(Math.max(0, Math.min(5, Math.round(Number(review.rating) || 0))))}${"&#9734;".repeat(5 - Math.max(0, Math.min(5, Math.round(Number(review.rating) || 0))))}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mb-2">"${escapeHtml(review.comment || "")}"</p>
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="text-[10px] font-bold ${String(review.doctor_review_status || review.moderation_status || "").toLowerCase() === "approved" ? "text-green-700 bg-green-50" : "text-amber-700 bg-amber-50"} px-2 py-1 rounded-full uppercase tracking-wide">${escapeHtml(review.doctor_review_status || review.moderation_status || "pending")}</span>
+                                        <span class="text-[10px] text-slate-400 uppercase tracking-wide">Useful ${escapeHtml(review.useful_count || 0)} | Concerns ${escapeHtml(review.concern_count || 0)}</span>
+                                    </div>
+                                    <div class="mt-3 flex justify-end">
+                                        ${String(review.doctor_review_status || review.moderation_status || "").toLowerCase() === "approved"
+                                            ? '<span class="px-3 py-2 bg-green-50 text-green-700 text-[10px] font-bold rounded-xl uppercase tracking-wide">Already Approved</span>'
+                                            : '<button type="button" class="approve-review-btn px-3 py-2 bg-blue-600 text-white text-[10px] font-bold rounded-xl">Approve Review</button>'}
+                                    </div>
+                                    ${(Array.isArray(review.concerns) && review.concerns.length) ? `
+                                        <div class="mt-3 pt-3 border-t border-slate-100 space-y-2">
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Review Concerns</p>
+                                            ${review.concerns.map((concern) => `
+                                                <div class="bg-amber-50 rounded-xl border border-amber-100 px-3 py-3">
+                                                    <p class="text-[10px] font-bold text-amber-700 uppercase tracking-wide mb-1">${escapeHtml(concern.concern_author || concern.author || "Community Member")} asked</p>
+                                                    <p class="text-xs text-slate-700 mb-2">${escapeHtml(concern.concern_text || concern.text || "")}</p>
+                                                    ${concern.reply_text || concern.reply ? `<p class="text-xs text-blue-700 bg-white rounded-lg px-3 py-2 border border-blue-100"><span class="font-bold uppercase text-[10px] tracking-wide">Reply:</span> ${escapeHtml(concern.reply_text || concern.reply || "")}</p>` : `
+                                                        <p class="text-[10px] text-slate-400 uppercase tracking-wide mb-2">No reply yet</p>
+                                                        <div class="flex justify-end">
+                                                            <button type="button" class="reply-review-concern-btn px-3 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-xl">Reply To Concern</button>
+                                                        </div>
+                                                    `}
+                                                </div>
+                                            `).join("")}
+                                        </div>
+                                    ` : ""}
+                                </div>
+                            `).join("") : '<p class="text-sm text-slate-500">No reviews available for this remedy yet.</p>'}
+                            <div class="mt-4 pt-4 border-t border-slate-200">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Remedy Concerns</p>
+                                ${concerns.length ? concerns.map((item) => `
+                                    <div class="bg-white rounded-2xl p-3 border border-slate-100 mb-3">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">${escapeHtml(item.display_author_name || item.author_name)} asked</p>
+                                        <p class="text-xs text-slate-700 mb-2">${escapeHtml(item.question_text)}</p>
+                                        ${item.answer_text ? `<p class="text-xs text-blue-700 bg-blue-50 rounded-xl px-3 py-2 mb-2"><span class="font-bold uppercase text-[10px] tracking-wide">${escapeHtml(item.display_answered_by || item.answered_by || "Doctor")} answered:</span> ${escapeHtml(item.answer_text)}</p>${getDoctorSignatureBlock(item.answered_by || "", item.answered_at || "")}` : '<p class="text-[10px] text-slate-400 uppercase tracking-wide mb-2">Awaiting doctor response</p>'}
+                                        ${item.prescribed_medicine ? `<p class="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded-xl px-3 py-2 inline-block">Prescribed: ${escapeHtml(item.prescribed_medicine)}</p>` : ""}
+                                        ${(Array.isArray(item.replies) && item.replies.length) ? `<div class="mt-3 space-y-2">${item.replies.map((reply) => `
+                                            <div class="bg-slate-50 rounded-xl border border-slate-200 px-3 py-3">
+                                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-1">${escapeHtml(reply.display_author_name || reply.author_name)} ${reply.author_role === "doctor" ? "replied" : "shared"}</p>
+                                                <p class="text-xs text-slate-700">${escapeHtml(reply.message_text)}</p>
+                                                ${reply.prescribed_medicine ? `<p class="text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded-xl px-3 py-2 inline-block mt-2">Prescribed: ${escapeHtml(reply.prescribed_medicine)}</p>` : ""}
+                                                ${reply.author_role === "doctor" ? getDoctorSignatureBlock(reply.author_name || "", reply.created_at || "") : ""}
+                                            </div>
+                                        `).join("")}</div>` : ""}
+                                        <div class="mt-3 flex justify-end">
+                                            <button type="button" class="answer-concern-btn px-3 py-2 bg-slate-900 text-white text-[10px] font-bold rounded-xl">Answer Concern</button>
+                                        </div>
+                                    </div>
+                                `).join("") : '<p class="text-sm text-slate-500">No concerns shared for this remedy yet.</p>'}
+                            </div>
+                        </div>
+                    ` : ""}
+                `;
+                card.querySelector(".approve-btn").addEventListener("click", () => openDoctorApprovalModal(remedy.remedy_name, "approved", latestApproval?.suggested_alternative || ""));
+                card.querySelector(".reject-btn").addEventListener("click", () => openDoctorApprovalModal(remedy.remedy_name, "rejected", latestApproval?.suggested_alternative || ""));
+                card.querySelector(".reviews-btn").addEventListener("click", () => toggleReviews(remedy.remedy_name));
+                if (expandedReviewRemedy === remedy.remedy_name && reviews.length) {
+                    card.querySelectorAll(".approve-review-btn").forEach((button, index) => {
+                        button.addEventListener("click", () => approveReviewByDoctor(reviews[index]));
+                    });
+                    const reviewConcerns = reviews.flatMap((review) => Array.isArray(review.concerns) ? review.concerns : []);
+                    card.querySelectorAll(".reply-review-concern-btn").forEach((button, index) => {
+                        button.addEventListener("click", () => answerReviewConcern(reviewConcerns[index]));
+                    });
+                }
+                if (expandedReviewRemedy === remedy.remedy_name && concerns.length) {
+                    card.querySelectorAll(".answer-concern-btn").forEach((button, index) => {
+                        button.addEventListener("click", () => answerRemedyConcern(concerns[index]));
+                    });
+                }
+                remedyGrid.appendChild(card);
+            });
+        }
+
+        function renderPatientHistory() {
+            const list = document.getElementById("patientHistoryList");
+            list.innerHTML = "";
+            const patients = filteredPatientHistory();
+
+            renderPatientSummary();
+
+            if (!patients.length) {
+                list.innerHTML = '<p class="text-sm text-slate-500">No patient history available yet.</p>';
+                return;
+            }
+
+            patients.forEach((patient) => {
+                const severityLines = Array.isArray(patient.severity_history) ? patient.severity_history.slice(0, 4) : [];
+                const priority = getPriorityTag(patient);
+                const suggestedRemedy = getSuggestedRemedyForPatient(patient);
+                const doctorDecision = getDoctorDecisionForPatient(patient);
+                const hasDoctorDecision = Boolean(doctorDecision);
+                const card = document.createElement("div");
+                card.className = "bg-slate-50 rounded-2xl p-4";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">${escapeHtml(patient.name || "Patient")}</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wide mt-1">${escapeHtml(patient.created_at || patient.dob || "Date not available")}</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-wide">Age ${escapeHtml(patient.age || "N/A")}</span>
+                            <span class="inline-flex items-center gap-2 text-[10px] font-bold border px-2 py-1 rounded-full uppercase tracking-wide ${priority.tone}">${priority.icon} ${escapeHtml(priority.label)}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-2"><span class="font-semibold text-slate-700">DOB:</span> ${escapeHtml(patient.dob || "Not provided")}</p>
+                    <p class="text-xs text-slate-500 mb-2"><span class="font-semibold text-slate-700">Symptoms:</span> ${escapeHtml(patient.symptoms || "Not provided")}</p>
+                    <p class="text-xs text-slate-500 mb-2"><span class="font-semibold text-slate-700">Duration:</span> ${escapeHtml(patient.duration || "Not provided")}</p>
+                    <p class="text-xs text-slate-500 mb-2"><span class="font-semibold text-slate-700">Suggested Remedy:</span> ${escapeHtml(suggestedRemedy)}</p>
+                    ${hasDoctorDecision ? `<p class="text-xs text-slate-500 mb-3"><span class="font-semibold text-slate-700">Doctor Decision:</span> ${escapeHtml(doctorDecision)}</p>` : ""}
+                    <p class="text-xs text-slate-500 mb-3"><span class="font-semibold text-slate-700">Notes:</span> ${escapeHtml(patient.notes || "No extra notes")}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${severityLines.length ? severityLines.map((entry) => `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">${escapeHtml(entry.symptom_name)}: ${escapeHtml(entry.severity_level)}</span>`).join("") : '<span class="text-[10px] text-slate-400">No severity records</span>'}
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        async function loadDoctorData() {
+            const [remedyResponse, patientResponse, reviewResponse] = await Promise.all([
+                fetch(`${API_BASE}/doctor-remedies`),
+                fetch(`${API_BASE}/doctor-patients`),
+                fetch(`${API_BASE}/all-reviews?include_pending=1`)
+            ]);
+
+            const remedyData = await remedyResponse.json();
+            const patientData = await patientResponse.json();
+            const reviewData = await reviewResponse.json();
+
+            if (!remedyResponse.ok) {
+                throw new Error(remedyData.message || "Unable to load remedies.");
+            }
+
+            if (!patientResponse.ok) {
+                throw new Error(patientData.message || "Unable to load patient history.");
+            }
+
+            doctorRemedies = Array.isArray(remedyData) ? remedyData : [];
+            patientHistory = Array.isArray(patientData) ? patientData : [];
+            allReviewDetails = Array.isArray(reviewData) ? reviewData : [];
+            remedyConcernMap = {};
+
+            await Promise.all(
+                doctorRemedies.map(async (remedy) => {
+                    const remedyName = String(remedy.remedy_name || "").trim();
+                    if (!remedyName) {
+                        remedy.review_details = [];
+                        return;
+                    }
+
+                    try {
+                        const concernResponse = await fetch(`${API_BASE}/get-remedy-questions?remedy=${encodeURIComponent(remedyName)}&include_pending=1`);
+                        const concernData = await concernResponse.json();
+                        remedy.review_details = getMatchedReviews(remedyName);
+                        remedyConcernMap[remedyName] = Array.isArray(concernData) ? concernData : [];
+                    } catch {
+                        remedy.review_details = [];
+                        remedyConcernMap[remedyName] = [];
+                    }
+                })
+            );
+
+            await loadDoctorNotifications();
+            renderRemedies();
+            renderPatientHistory();
+        }
+
+        function logoutDoctor() {
+            clearDoctorSession();
+            window.location.href = "index.html";
+        }
+
+        window.onload = async () => {
+            const session = requireDoctorSession();
+            if (!session) {
+                return;
+            }
+
+            document.getElementById("doctorLogoutBtn").addEventListener("click", logoutDoctor);
+            document.getElementById("closeDoctorModalBtn").addEventListener("click", closeDoctorModal);
+            document.getElementById("cancelDoctorModalBtn").addEventListener("click", closeDoctorModal);
+            document.getElementById("submitDoctorModalBtn").addEventListener("click", submitDoctorApproval);
+            document.getElementById("doctorModal").addEventListener("click", (event) => {
+                if (event.target.id === "doctorModal") {
+                    closeDoctorModal();
+                }
+            });
+            document.getElementById("searchInput").addEventListener("input", renderRemedies);
+            document.getElementById("statusFilter").addEventListener("change", renderRemedies);
+            document.getElementById("severityFilter").addEventListener("change", renderPatientHistory);
+            document.getElementById("durationFilter").addEventListener("change", renderPatientHistory);
+
+            try {
+                await loadDoctorData();
+            } catch (error) {
+                document.getElementById("remedyGrid").innerHTML = `<div class="main-card rounded-[2rem] p-6 text-sm text-red-600">${escapeHtml(error.message || "Something went wrong while loading the doctor site.")}</div>`;
+            }
+        };
+    </script>
+</body>
+</html>
+
+
