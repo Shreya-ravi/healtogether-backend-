@@ -40,14 +40,13 @@ http://localhost:5000
 
 # API Endpoints
 
-## Health Check
+ Health Check
 
+ Add Patient
 
-## Add Patient
+ Get Remedies
 
-## Get Remedies
-
-# Example Response
+#  Example Response
 
 {
   "message": "Heal Together backend is running"
@@ -80,4 +79,4 @@ https://healtogether-backend.onrender.com
 
 # Author
 
-Shreya Ravi
+Shreya Ravi.
